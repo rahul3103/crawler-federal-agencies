@@ -24,15 +24,21 @@ for url in urls:
 	new_soup = BeautifulSoup(html,"lxml")
 	
 	
-
 #finding all Names of the agencies
 
 	name = new_soup.find("div",{"class":"col-md-9"}).find('h1').string
-	
+
+#finding parent agency if its there
+
+	if new_soup.find("h2", text="Parent Agency") is not None:
+		parent = new_soup.find("h2", text="Parent Agency").find_parent("section").find('a').string
+	else:
+		parent = "none"
+
 #finding Agencies who have acronyms
 
 	if new_soup.find("h3", text="Acronym:") is not None:
-		acronym = new_soup.find("h3", text="Acronym:").find_parent("section").find('p').get_text(" ", strip=True)
+		acronym = new_soup.find("h3", text="Acronym:").find_parent("section").find('p').string
 	else :
 		acronym = "none"
 
@@ -56,7 +62,7 @@ for url in urls:
 #finding phone first using class:tel but all pages dont have that so again searched using text
 
 	if new_soup.find('p',{'class':'tel'}) is not None:
-		phone = new_soup.find('p',{'class':'tel'}).get_text(" ", strip=True)
+		phone = new_soup.find('p',{'class':'tel'}).string
 	elif new_soup.find("h3", text="Phone Number:") is not None:
 		phone = new_soup.find("h3", text="Phone Number:").find_parent("section").find('p').get_text("|", strip=True)
 	else :
@@ -70,8 +76,8 @@ for url in urls:
 #as contacts are more than one
 		contact = []
 		for contacts in all_contacts:
-			contact.append(contacts.get_text(" ", strip=True))
+			contact.append(contacts.string)
 			contact.append(contacts.get('href'))
 	else:
 		contact.append('none')
-	writer.writerow([name,url,acronym,website,address,phone,contact])
+	writer.writerow([name,parent,url,acronym,website,address,phone,contact])
